@@ -18,6 +18,19 @@ enum _Element {
   fourthBlockColor,
 }
 
+final _minutesColors = [
+  Colors.lime,
+  Colors.pink,
+  Colors.indigo,
+  Colors.deepPurple,
+  Colors.red,
+  Colors.greenAccent,
+  Colors.blue,
+  Colors.amber,
+  Colors.blueGrey,
+  Colors.yellow
+];
+
 final _lightTheme = {
   _Element.background: Color(0xFF81B3FE),
   _Element.text: Colors.white,
@@ -51,6 +64,10 @@ class _DigitalClockState extends State<DigitalClock> {
   DateTime _dateTime = DateTime.now();
   Timer _timer;
   double _separatorOpacity;
+  String _firstHourNumber;
+  String _secondHourNumber;
+  String _firstMinuteNumber;
+  String _secondMinuteNumber;
 
   @override
   void initState() {
@@ -104,6 +121,41 @@ class _DigitalClockState extends State<DigitalClock> {
     });
   }
 
+  Container _getWeatherEmoji(WeatherCondition weatherCondition) {
+    var text;
+    switch (weatherCondition) {
+      case WeatherCondition.sunny:
+        text = '☀️';
+        break;
+      case WeatherCondition.windy:
+        text = '💨';
+        break;
+      case WeatherCondition.rainy:
+        text = '🌧';
+        break;
+      case WeatherCondition.snowy:
+        text = '❄️';
+        break;
+      case WeatherCondition.foggy:
+        text = '🌫';
+        break;
+      case WeatherCondition.cloudy:
+        text = '🌥';
+        break;
+      case WeatherCondition.thunderstorm:
+        text = '🌩';
+        break;
+    }
+
+    return Container(
+      margin: EdgeInsets.only(right: 4.0),
+      child: Text(text,
+          style: TextStyle(
+            fontSize: 12,
+          )),
+    );
+  }
+
   Widget _buildBlock(BuildContext context, Color color) {
     return Transform.rotate(
         angle: math.pi / 16,
@@ -137,6 +189,13 @@ class _DigitalClockState extends State<DigitalClock> {
 
     final firstMinuteNumber = minute.substring(0, 1);
     final secondMinuteNumber = minute.substring(1);
+
+    setState(() {
+      _firstHourNumber = firstHourNumber;
+      _secondHourNumber = secondHourNumber;
+      _firstMinuteNumber = firstMinuteNumber;
+      _secondMinuteNumber = secondMinuteNumber;
+    });
 
     final fontSize = MediaQuery.of(context).size.width / 6.5;
     final defaultStyle = TextStyle(
@@ -177,10 +236,10 @@ class _DigitalClockState extends State<DigitalClock> {
               Positioned(
                   left: 310,
                   top: -80,
-                  child:
-                      _buildBlock(context, colors[_Element.fourthBlockColor])),
-              Positioned(left: 40, top: 80, child: Text(firstHourNumber)),
-              Positioned(left: 130, top: 80, child: Text(secondHourNumber)),
+                  child: _buildBlock(
+                      context, _minutesColors[int.parse(_secondMinuteNumber)])),
+              Positioned(left: 40, top: 80, child: Text(_firstHourNumber)),
+              Positioned(left: 130, top: 80, child: Text(_secondHourNumber)),
               Positioned(
                   left: 200,
                   top: 75,
@@ -188,21 +247,19 @@ class _DigitalClockState extends State<DigitalClock> {
                       duration: Duration(milliseconds: 350),
                       opacity: _separatorOpacity,
                       child: Text(':'))),
-              Positioned(right: 125, top: 80, child: Text(firstMinuteNumber)),
-              Positioned(right: 25, top: 80, child: Text(secondMinuteNumber)),
+              Positioned(right: 125, top: 80, child: Text(_firstMinuteNumber)),
+              Positioned(right: 25, top: 80, child: Text(_secondMinuteNumber)),
               Positioned(
                   right: 10,
                   bottom: 25,
-                  child: Text(
-                    widget.model.weatherString,
-                    style: TextStyle(fontSize: 10),
-                  )),
-              Positioned(
-                  right: 40,
-                  bottom: 25,
-                  child: Text(
-                    widget.model.temperatureString,
-                    style: TextStyle(fontSize: 10),
+                  child: Row(
+                    children: <Widget>[
+                      _getWeatherEmoji(widget.model.weatherCondition),
+                      Text(
+                        widget.model.temperatureString,
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    ],
                   )),
               Positioned(
                   right: 10,
