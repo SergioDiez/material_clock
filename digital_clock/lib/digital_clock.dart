@@ -12,43 +12,30 @@ enum _Element {
   background,
   text,
   shadow,
-  firstBlockColor,
-  secondBlockColor,
-  thirdBlockColor,
-  fourthBlockColor,
 }
 
-final _minutesColors = [
+final _colors = [
+  Colors.amber,
+  Colors.red,
+  Colors.indigo,
+  Colors.purple,
+  Colors.blue,
+  Colors.orange,
   Colors.lime,
   Colors.pink,
-  Colors.indigo,
-  Colors.deepPurple,
-  Colors.red,
-  Colors.greenAccent,
-  Colors.blue,
-  Colors.amber,
-  Colors.blueGrey,
-  Colors.yellow
+  Colors.green,
 ];
 
 final _lightTheme = {
   _Element.background: Color(0xFF81B3FE),
   _Element.text: Colors.white,
   _Element.shadow: Colors.black,
-  _Element.firstBlockColor: Colors.amber,
-  _Element.secondBlockColor: Colors.blueAccent,
-  _Element.thirdBlockColor: Colors.greenAccent,
-  _Element.fourthBlockColor: Colors.redAccent,
 };
 
 final _darkTheme = {
   _Element.background: Colors.black,
   _Element.text: Colors.white,
   _Element.shadow: Color(0xFF174EA6),
-  _Element.firstBlockColor: Colors.deepPurple.shade900,
-  _Element.secondBlockColor: Colors.lime.shade900,
-  _Element.thirdBlockColor: Colors.indigo.shade900,
-  _Element.fourthBlockColor: Colors.pink.shade900,
 };
 
 class DigitalClock extends StatefulWidget {
@@ -65,9 +52,13 @@ class _DigitalClockState extends State<DigitalClock> {
   Timer _timer;
   double _separatorOpacity;
   String _firstHourNumber;
+  Color _firstLayerColor;
   String _secondHourNumber;
+  Color _secondLayerColor;
   String _firstMinuteNumber;
+  Color _thirdLayerColor;
   String _secondMinuteNumber;
+  Color _fourthLayerColor;
 
   @override
   void initState() {
@@ -101,24 +92,70 @@ class _DigitalClockState extends State<DigitalClock> {
   }
 
   void _updateTime() {
+    DateTime currentTime = DateTime.now();
+    final hour =
+        DateFormat(widget.model.is24HourFormat ? 'HH' : 'hh').format(_dateTime);
+
+    final firstHourNumber = hour.substring(0, 1);
+    final secondHourNumber = hour.substring(1);
+
+    final minute = DateFormat('mm').format(_dateTime);
+
+    final firstMinuteNumber = minute.substring(0, 1);
+    final secondMinuteNumber = minute.substring(1);
+
+    Color newFirstLayerColor;
+    if (firstHourNumber != _firstHourNumber) {
+      newFirstLayerColor = _getColor(_firstLayerColor);
+      setState(() {
+        _firstHourNumber = firstHourNumber;
+        _firstLayerColor = newFirstLayerColor;
+      });
+    }
+    Color secondHourLayerColor;
+    if (secondHourNumber != _secondHourNumber) {
+      secondHourLayerColor = _getColor(_secondLayerColor);
+      setState(() {
+        _secondHourNumber = secondHourNumber;
+        _secondLayerColor = secondHourLayerColor;
+      });
+    }
+    Color firstMinuteLayerColor;
+    if (firstMinuteNumber != _firstMinuteNumber) {
+      firstMinuteLayerColor = _getColor(_thirdLayerColor);
+      setState(() {
+        _firstMinuteNumber = firstMinuteNumber;
+        _thirdLayerColor = firstMinuteLayerColor;
+      });
+    }
+    Color secondMinuteLayerColor;
+    if (secondMinuteNumber != _secondMinuteNumber) {
+      secondMinuteLayerColor = _getColor(_fourthLayerColor);
+      setState(() {
+        _secondMinuteNumber = secondMinuteNumber;
+        _fourthLayerColor = secondMinuteLayerColor;
+      });
+    }
+
     setState(() {
-      _dateTime = DateTime.now();
+      _dateTime = currentTime;
       _separatorOpacity = _separatorOpacity == 1 ? 0 : 1;
-      // Update once per minute. If you want to update every second, use the
-      // following code.
-      /*_timer = Timer(
-        Duration(minutes: 1) -
-            Duration(seconds: _dateTime.second) -
-            Duration(milliseconds: _dateTime.millisecond),
-        _updateTime,
-      );*/
-      // Update once per second, but make sure to do it at the beginning of each
-      // new second, so that the clock is accurate.
       _timer = Timer(
         Duration(seconds: 1) - Duration(milliseconds: _dateTime.millisecond),
         _updateTime,
       );
     });
+  }
+
+  Color _getColor(Color currentColor) {
+    math.Random random = new math.Random();
+    int position = random.nextInt(_colors.length);
+    Color nextColor = _colors[position];
+    _colors.removeAt(position);
+    if (currentColor != null) {
+      _colors.add(currentColor);
+    }
+    return nextColor;
   }
 
   Container _getWeatherEmoji(WeatherCondition weatherCondition) {
@@ -179,23 +216,6 @@ class _DigitalClockState extends State<DigitalClock> {
     final colors = Theme.of(context).brightness == Brightness.light
         ? _lightTheme
         : _darkTheme;
-    final hour =
-        DateFormat(widget.model.is24HourFormat ? 'HH' : 'hh').format(_dateTime);
-
-    final firstHourNumber = hour.substring(0, 1);
-    final secondHourNumber = hour.substring(1);
-
-    final minute = DateFormat('mm').format(_dateTime);
-
-    final firstMinuteNumber = minute.substring(0, 1);
-    final secondMinuteNumber = minute.substring(1);
-
-    setState(() {
-      _firstHourNumber = firstHourNumber;
-      _secondHourNumber = secondHourNumber;
-      _firstMinuteNumber = firstMinuteNumber;
-      _secondMinuteNumber = secondMinuteNumber;
-    });
 
     final fontSize = MediaQuery.of(context).size.width / 6.5;
     final defaultStyle = TextStyle(
@@ -221,23 +241,19 @@ class _DigitalClockState extends State<DigitalClock> {
               Positioned(
                   left: -25,
                   top: -80,
-                  child:
-                      _buildBlock(context, colors[_Element.firstBlockColor])),
+                  child: _buildBlock(context, _firstLayerColor)),
               Positioned(
                   left: 110,
                   top: -80,
-                  child:
-                      _buildBlock(context, colors[_Element.secondBlockColor])),
+                  child: _buildBlock(context, _secondLayerColor)),
               Positioned(
                   left: 210,
                   top: -80,
-                  child:
-                      _buildBlock(context, colors[_Element.thirdBlockColor])),
+                  child: _buildBlock(context, _thirdLayerColor)),
               Positioned(
                   left: 310,
                   top: -80,
-                  child: _buildBlock(
-                      context, _minutesColors[int.parse(_secondMinuteNumber)])),
+                  child: _buildBlock(context, _fourthLayerColor)),
               Positioned(left: 40, top: 80, child: Text(_firstHourNumber)),
               Positioned(left: 130, top: 80, child: Text(_secondHourNumber)),
               Positioned(
@@ -248,7 +264,11 @@ class _DigitalClockState extends State<DigitalClock> {
                       opacity: _separatorOpacity,
                       child: Text(':'))),
               Positioned(right: 125, top: 80, child: Text(_firstMinuteNumber)),
-              Positioned(right: 25, top: 80, child: Text(_secondMinuteNumber)),
+              AnimatedContainer(
+                duration: Duration(milliseconds: 250),
+                child: Positioned(
+                    right: 25, top: 80, child: Text(_secondMinuteNumber)),
+              ),
               Positioned(
                   right: 10,
                   bottom: 25,
