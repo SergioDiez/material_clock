@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:digital_clock/animated_number.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -63,32 +64,19 @@ class _DigitalClockState extends State<DigitalClock> {
   @override
   void initState() {
     super.initState();
-    widget.model.addListener(_updateModel);
     _updateTime();
-    _updateModel();
   }
 
   @override
   void didUpdateWidget(DigitalClock oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.model != oldWidget.model) {
-      oldWidget.model.removeListener(_updateModel);
-      widget.model.addListener(_updateModel);
-    }
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    widget.model.removeListener(_updateModel);
     widget.model.dispose();
     super.dispose();
-  }
-
-  void _updateModel() {
-    setState(() {
-      // Cause the clock to rebuild when the model changes.
-    });
   }
 
   void _updateTime() {
@@ -264,11 +252,8 @@ class _DigitalClockState extends State<DigitalClock> {
                       opacity: _separatorOpacity,
                       child: Text(':'))),
               Positioned(right: 125, top: 80, child: Text(_firstMinuteNumber)),
-              AnimatedContainer(
-                duration: Duration(milliseconds: 250),
-                child: Positioned(
-                    right: 25, top: 80, child: Text(_secondMinuteNumber)),
-              ),
+              AnimatedNumber(
+                  x: 25, y: 80, numberDisplayed: _secondMinuteNumber),
               Positioned(
                   right: 10,
                   bottom: 25,
