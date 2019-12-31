@@ -31,30 +31,45 @@ class _AnimatedNumberState extends State<AnimatedNumber>
       vsync: this,
     );
     _xAnimation = Tween<double>(
-      begin: widget.x,
-      end: 0.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Interval(0.0, 1.0)))
+      begin: -5,
+      end: widget.x,
+    ).animate(CurvedAnimation(
+        parent: _controller, curve: Interval(0.0, 0.6, curve: Curves.ease)))
       ..addListener(() {
         setState(() {});
       });
+    _yAnimation = Tween<double>(
+      begin: -100,
+      end: widget.y,
+    ).animate(CurvedAnimation(
+        parent: _controller, curve: Interval(0.0, 0.6, curve: Curves.easeOut)));
 
     _angleAnimation = TweenSequence(<TweenSequenceItem<double>>[
       TweenSequenceItem<double>(
+        tween: Tween<double>(begin: -9.0, end: -2.0)
+            .chain(CurveTween(curve: Curves.ease)),
+        weight: 75.0,
+      ),
+      TweenSequenceItem<double>(
         tween: Tween<double>(begin: 0.0, end: 7.0)
             .chain(CurveTween(curve: Curves.ease)),
-        weight: 40.0,
+        weight: 10.0,
       ),
       TweenSequenceItem<double>(
         tween: Tween<double>(begin: 7.0, end: -3.0)
             .chain(CurveTween(curve: Curves.ease)),
-        weight: 35.0,
+        weight: 7.5,
       ),
       TweenSequenceItem<double>(
         tween: Tween<double>(begin: -3.0, end: 0.0)
             .chain(CurveTween(curve: Curves.ease)),
-        weight: 25.0,
+        weight: 7.5,
       ),
-    ]).animate(_controller);
+    ]).animate(CurvedAnimation(
+        parent: _controller, curve: Interval(0.0, 1.0, curve: Curves.ease)))
+      ..addListener(() {
+        setState(() {});
+      });
   }
 
   @override
@@ -82,8 +97,8 @@ class _AnimatedNumberState extends State<AnimatedNumber>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      right: widget.x,
-      top: widget.y,
+      right: _xAnimation.value,
+      top: _yAnimation.value,
       child: Transform.rotate(
           angle: _angleAnimation.value * 2 * math.pi / 360,
           child: Text(widget.numberDisplayed)),
