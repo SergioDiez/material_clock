@@ -14,59 +14,95 @@ class AnimatedNumber extends StatefulWidget {
 }
 
 class _AnimatedNumberState extends State<AnimatedNumber>
-    with SingleTickerProviderStateMixin {
-  Animation<double> _xAnimation;
-  Animation<double> _yAnimation;
+    with TickerProviderStateMixin {
+  Animation<double> _xOutAnimation;
+  Animation<double> _yOutAnimation;
+  Animation<double> _xInAnimation;
+  Animation<double> _yInAnimation;
   Animation<double> _angleAnimation;
-  AnimationController _controller;
-  double _angle = 0;
+  AnimationController _inAnimationController;
+  AnimationController _outAnimationController;
+  String _displayedNumber;
 
-  static const int ANIMATION_DURATION_MS = 750;
+  static const int IN_ANIMATION_DURATION_MS = 1250;
+  static const int OUT_ANIMATION_DURATION_MS = 650;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: Duration(milliseconds: ANIMATION_DURATION_MS),
+    _displayedNumber = widget.numberDisplayed;
+    createOutAnimation();
+    createInAnimation();
+
+    runInAnimation();
+  }
+
+  void createOutAnimation() {
+    _outAnimationController = AnimationController(
+      duration: Duration(milliseconds: OUT_ANIMATION_DURATION_MS),
       vsync: this,
     );
-    _xAnimation = Tween<double>(
+    _xOutAnimation = Tween<double>(
+      begin: widget.x,
+      end: widget.x - 5,
+    ).animate(CurvedAnimation(
+      parent: _outAnimationController,
+      curve: Interval(0.0, 1.0, curve: Curves.easeIn),
+    ));
+    _yOutAnimation = Tween<double>(
+      begin: widget.y,
+      end: widget.y + 230,
+    ).animate(CurvedAnimation(
+      parent: _outAnimationController,
+      curve: Interval(0.0, 1.0, curve: Curves.easeIn),
+    ));
+  }
+
+  void createInAnimation() {
+    _inAnimationController = AnimationController(
+      duration: Duration(milliseconds: IN_ANIMATION_DURATION_MS),
+      vsync: this,
+    );
+    _xInAnimation = Tween<double>(
       begin: -5,
       end: widget.x,
     ).animate(CurvedAnimation(
-        parent: _controller, curve: Interval(0.0, 0.6, curve: Curves.ease)))
+        parent: _inAnimationController,
+        curve: Interval(0.0, 1.0, curve: Curves.easeOutExpo)))
       ..addListener(() {
         setState(() {});
       });
-    _yAnimation = Tween<double>(
+    _yInAnimation = Tween<double>(
       begin: -100,
       end: widget.y,
     ).animate(CurvedAnimation(
-        parent: _controller, curve: Interval(0.0, 0.6, curve: Curves.easeOut)));
+        parent: _inAnimationController,
+        curve: Interval(0.0, 1.0, curve: Curves.easeOutExpo)));
 
     _angleAnimation = TweenSequence(<TweenSequenceItem<double>>[
       TweenSequenceItem<double>(
-        tween: Tween<double>(begin: -9.0, end: -2.0)
-            .chain(CurveTween(curve: Curves.ease)),
+        tween: Tween<double>(begin: -20.0, end: -2.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
         weight: 75.0,
       ),
       TweenSequenceItem<double>(
         tween: Tween<double>(begin: 0.0, end: 7.0)
-            .chain(CurveTween(curve: Curves.ease)),
+            .chain(CurveTween(curve: Curves.easeOut)),
         weight: 10.0,
       ),
       TweenSequenceItem<double>(
         tween: Tween<double>(begin: 7.0, end: -3.0)
-            .chain(CurveTween(curve: Curves.ease)),
+            .chain(CurveTween(curve: Curves.easeOut)),
         weight: 7.5,
       ),
       TweenSequenceItem<double>(
         tween: Tween<double>(begin: -3.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.ease)),
+            .chain(CurveTween(curve: Curves.easeOut)),
         weight: 7.5,
       ),
     ]).animate(CurvedAnimation(
-        parent: _controller, curve: Interval(0.0, 1.0, curve: Curves.ease)))
+        parent: _inAnimationController,
+        curve: Interval(0.0, 1.0, curve: Curves.ease)))
       ..addListener(() {
         setState(() {});
       });
@@ -75,33 +111,50 @@ class _AnimatedNumberState extends State<AnimatedNumber>
   @override
   void didUpdateWidget(AnimatedNumber oldWidget) {
     if (widget.numberDisplayed != oldWidget.numberDisplayed) {
-      runAnimation();
+      runOutAnimation();
+      runInAnimation();
     }
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _inAnimationController.dispose();
+    _outAnimationController.dispose();
     super.dispose();
   }
 
-  Future<void> runAnimation() async {
-    print('Running animation brah');
+  Future<void> runOutAnimation() async {
     try {
-      _controller.reset();
-      await _controller.forward().orCancel;
+      _outAnimationController.reset();
+      await _outAnimationController.forward().whenComplete(() {
+        setState(() {
+          _displayedNumber = widget.numberDisplayed;
+        });
+        runInAnimation();
+      });
+    } on TickerCanceled {}
+  }
+
+  Future<void> runInAnimation() async {
+    try {
+      _inAnimationController.reset();
+      await _inAnimationController.forward().orCancel;
     } on TickerCanceled {}
   }
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      right: _xAnimation.value,
-      top: _yAnimation.value,
+      right: _outAnimationController.isAnimating
+          ? _xOutAnimation.value
+          : _xInAnimation.value,
+      top: _outAnimationController.isAnimating
+          ? _yOutAnimation.value
+          : _yInAnimation.value,
       child: Transform.rotate(
           angle: _angleAnimation.value * 2 * math.pi / 360,
-          child: Text(widget.numberDisplayed)),
+          child: Text(_displayedNumber)),
     );
   }
 }
