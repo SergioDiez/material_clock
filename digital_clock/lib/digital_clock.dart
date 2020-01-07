@@ -4,12 +4,13 @@
 
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:digital_clock/animated_number.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-final _colors = [
+final _lightColors = [
   Colors.amber,
   Colors.red,
   Colors.indigo,
@@ -19,6 +20,18 @@ final _colors = [
   Colors.lime,
   Colors.pink,
   Colors.green,
+];
+
+final _darkColors = [
+  Colors.red.shade900,
+  Colors.indigo.shade900,
+  Colors.purple.shade900,
+  Colors.deepOrange.shade900,
+  Colors.blueGrey.shade800,
+  Colors.blue.shade900,
+  Colors.lime.shade900,
+  Colors.pink.shade900,
+  Colors.green.shade900,
 ];
 
 class DigitalClock extends StatefulWidget {
@@ -118,12 +131,17 @@ class _DigitalClockState extends State<DigitalClock> {
   }
 
   Color _getColor(Color currentColor) {
+    Window window = WidgetsBinding.instance.window;
+    print(window.platformBrightness);
+    final themeColors = window.platformBrightness == Brightness.dark
+        ? _darkColors
+        : _lightColors;
     math.Random random = new math.Random();
-    int position = random.nextInt(_colors.length);
-    Color nextColor = _colors[position];
-    _colors.removeAt(position);
+    int position = random.nextInt(themeColors.length);
+    Color nextColor = themeColors[position];
+    themeColors.removeAt(position);
     if (currentColor != null) {
-      _colors.add(currentColor);
+      themeColors.add(currentColor);
     }
     return nextColor;
   }
@@ -184,8 +202,6 @@ class _DigitalClockState extends State<DigitalClock> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkTheme = Theme.of(context).brightness == Brightness.light;
-
     final screenWidth = MediaQuery.of(context).size.width;
     final fontSize = screenWidth / 6.5;
     final defaultStyle = TextStyle(
