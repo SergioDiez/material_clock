@@ -9,12 +9,6 @@ import 'package:flutter_clock_helper/model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-enum _Element {
-  background,
-  text,
-  shadow,
-}
-
 final _colors = [
   Colors.amber,
   Colors.red,
@@ -26,18 +20,6 @@ final _colors = [
   Colors.pink,
   Colors.green,
 ];
-
-final _lightTheme = {
-  _Element.background: Color(0xFF81B3FE),
-  _Element.text: Colors.white,
-  _Element.shadow: Colors.black,
-};
-
-final _darkTheme = {
-  _Element.background: Colors.black,
-  _Element.text: Colors.white,
-  _Element.shadow: Color(0xFF174EA6),
-};
 
 class DigitalClock extends StatefulWidget {
   const DigitalClock(this.model);
@@ -182,120 +164,102 @@ class _DigitalClockState extends State<DigitalClock> {
   }
 
   Widget _buildBlock(
-      BuildContext context, Color color, double width, double height) {
-    return Transform(
-        transform: Matrix4.skewX(-0.15),
-        child: AnimatedContainer(
-          duration: Duration(seconds: 1),
-          curve: Curves.fastOutSlowIn,
-          width: width,
-          height: height,
-          decoration: new BoxDecoration(color: color, boxShadow: [
-            BoxShadow(
-                color: Colors.black45,
-                blurRadius: 6.0,
-                spreadRadius: 0.0,
-                offset: Offset(-2, 0))
-          ]),
-        ));
+      BuildContext context, Color color, String displayedNumber) {
+    return AnimatedContainer(
+      duration: Duration(seconds: 1),
+      curve: Curves.fastOutSlowIn,
+      child: Center(
+        child: AnimatedNumber(numberDisplayed: displayedNumber),
+      ),
+      constraints: BoxConstraints.expand(),
+      decoration: new BoxDecoration(color: color, boxShadow: [
+        BoxShadow(
+            color: Colors.black45,
+            blurRadius: 6.0,
+            spreadRadius: 0.0,
+            offset: Offset(-2, 0))
+      ]),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).brightness == Brightness.light
-        ? _lightTheme
-        : _darkTheme;
+    final isDarkTheme = Theme.of(context).brightness == Brightness.light;
 
-    final screenWidth = MediaQuery
-        .of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final layerWidth = screenWidth / 4;
+    final screenWidth = MediaQuery.of(context).size.width;
     final fontSize = screenWidth / 6.5;
     final defaultStyle = TextStyle(
-      color: colors[_Element.text],
+      color: Color(0xFF81B3FE),
       fontFamily: 'Roboto',
       fontSize: fontSize,
       shadows: [
         Shadow(
           blurRadius: 3,
-          color: colors[_Element.shadow],
+          color: Colors.black45,
           offset: Offset(0, 0),
         ),
       ],
     );
 
     return Container(
-      color: colors[_Element.background],
-      child: Center(
-        child: DefaultTextStyle(
-          style: defaultStyle,
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                  left: 0,
-                  top: 0,
-                  child: _buildBlock(context, _firstLayerColor, layerWidth + 15,
-                      screenHeight)),
-              Positioned(
-                  left: layerWidth + 15,
-                  top: 0,
+      color: Colors.indigoAccent,
+      child: DefaultTextStyle(
+        style: defaultStyle,
+        child: Stack(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Flexible(
+                  flex: 1,
+                  child:
+                      _buildBlock(context, _firstLayerColor, _firstHourNumber),
+                ),
+                Flexible(
+                  flex: 1,
                   child: _buildBlock(
-                      context, _secondLayerColor, layerWidth, screenHeight)),
-              Positioned(
-                  left: layerWidth * 2 + 15,
-                  top: 0,
+                      context, _secondLayerColor, _secondHourNumber),
+                ),
+                Flexible(
+                  flex: 1,
                   child: _buildBlock(
-                      context, _thirdLayerColor, layerWidth, screenHeight)),
-              Positioned(
-                  left: layerWidth * 3 + 15,
-                  top: 0,
-                  child: _buildBlock(context, _fourthLayerColor,
-                      layerWidth + 20, screenHeight)),
-              AnimatedNumber(
-                  x: layerWidth / 2 - 16,
-                  y: 80,
-                  numberDisplayed: _firstHourNumber),
-              AnimatedNumber(
-                  x: (layerWidth * 2 - layerWidth / 2) - 16,
-                  y: 80,
-                  numberDisplayed: _secondHourNumber),
-              Positioned(
-                  left: layerWidth * 2 - 7.5,
-                  top: 75,
-                  child: AnimatedOpacity(
-                      duration: Duration(milliseconds: 350),
-                      opacity: _separatorOpacity,
-                      child: Text(':'))),
-              AnimatedNumber(
-                  x: (layerWidth * 3 - layerWidth / 2) - 16,
-                  y: 80,
-                  numberDisplayed: _firstMinuteNumber),
-              AnimatedNumber(
-                  x: (layerWidth * 4 - layerWidth / 2) - 16,
-                  y: 80,
-                  numberDisplayed: _secondMinuteNumber),
-              Positioned(
-                  right: 10,
-                  bottom: 25,
-                  child: Row(
-                    children: <Widget>[
-                      _getWeatherEmoji(widget.model.weatherCondition),
-                      Text(
-                        widget.model.temperatureString,
-                        style: TextStyle(fontSize: 10),
-                      ),
-                    ],
-                  )),
-              Positioned(
-                  right: 10,
-                  bottom: 10,
+                      context, _thirdLayerColor, _firstMinuteNumber),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: _buildBlock(
+                      context, _fourthLayerColor, _secondMinuteNumber),
+                ),
+              ],
+            ),
+            Center(
+              child: AnimatedOpacity(
+                  duration: Duration(milliseconds: 350),
+                  opacity: _separatorOpacity,
                   child: Text(
-                    widget.model.location,
-                    style: TextStyle(fontSize: 7),
+                    ':',
                   )),
-            ],
-            overflow: Overflow.clip,
-          ),
+            ),
+            Positioned(
+                right: 10,
+                bottom: 25,
+                child: Row(
+                  children: <Widget>[
+                    _getWeatherEmoji(widget.model.weatherCondition),
+                    Text(
+                      widget.model.temperatureString,
+                      style: TextStyle(fontSize: 10),
+                    ),
+                  ],
+                )),
+            Positioned(
+                right: 10,
+                bottom: 10,
+                child: Text(
+                  widget.model.location,
+                  style: TextStyle(fontSize: 7),
+                )),
+          ],
+          overflow: Overflow.clip,
         ),
       ),
     );

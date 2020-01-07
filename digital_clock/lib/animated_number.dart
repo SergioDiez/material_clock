@@ -15,13 +15,11 @@ class AnimatedNumber extends StatefulWidget {
 
 class _AnimatedNumberState extends State<AnimatedNumber>
     with TickerProviderStateMixin {
-  Animation<double> _xOutAnimation;
-  Animation<double> _yOutAnimation;
-  Animation<double> _xInAnimation;
-  Animation<double> _yInAnimation;
-  Animation<double> _angleAnimation;
   AnimationController _inAnimationController;
   AnimationController _outAnimationController;
+  Animation<Offset> _offsetOutAnimation;
+  Animation<Offset> _offsetInAnimation;
+  Animation<double> _swingAnimation;
   String _displayedNumber;
 
   static const int IN_ANIMATION_DURATION_MS = 3100;
@@ -42,16 +40,9 @@ class _AnimatedNumberState extends State<AnimatedNumber>
       duration: Duration(milliseconds: OUT_ANIMATION_DURATION_MS),
       vsync: this,
     );
-    _xOutAnimation = Tween<double>(
-      begin: widget.x,
-      end: widget.x - 15,
-    ).animate(CurvedAnimation(
-      parent: _outAnimationController,
-      curve: Interval(0.0, 1.0, curve: Curves.easeIn),
-    ));
-    _yOutAnimation = Tween<double>(
-      begin: widget.y,
-      end: widget.y + 230,
+    _offsetOutAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(0.0, 1.5),
     ).animate(CurvedAnimation(
       parent: _outAnimationController,
       curve: Interval(0.0, 1.0, curve: Curves.easeIn),
@@ -63,23 +54,14 @@ class _AnimatedNumberState extends State<AnimatedNumber>
       duration: Duration(milliseconds: IN_ANIMATION_DURATION_MS),
       vsync: this,
     );
-    _xInAnimation = Tween<double>(
-      begin: widget.x + 15,
-      end: widget.x,
-    ).animate(CurvedAnimation(
-        parent: _inAnimationController,
-        curve: Interval(0.0, 0.3, curve: Curves.ease)))
-      ..addListener(() {
-        setState(() {});
-      });
-    _yInAnimation = Tween<double>(
-      begin: -100,
-      end: widget.y,
+    _offsetInAnimation = Tween<Offset>(
+      begin: const Offset(0.0, -1.5),
+      end: Offset.zero,
     ).animate(CurvedAnimation(
         parent: _inAnimationController,
         curve: Interval(0.0, 0.3, curve: Curves.ease)));
 
-    _angleAnimation = TweenSequence(<TweenSequenceItem<double>>[
+    _swingAnimation = TweenSequence(<TweenSequenceItem<double>>[
       TweenSequenceItem<double>(
         tween: ConstantTween<double>(-20.0),
         weight: 35.0,
@@ -149,15 +131,12 @@ class _AnimatedNumberState extends State<AnimatedNumber>
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      left: _outAnimationController.isAnimating
-          ? _xOutAnimation.value
-          : _xInAnimation.value,
-      top: _outAnimationController.isAnimating
-          ? _yOutAnimation.value
-          : _yInAnimation.value,
+    return SlideTransition(
+      position: _outAnimationController.isAnimating
+          ? _offsetOutAnimation
+          : _offsetInAnimation,
       child: Transform.rotate(
-          angle: _angleAnimation.value * 2 * math.pi / 360,
+          angle: _swingAnimation.value * 2 * math.pi / 360,
           child: Text(_displayedNumber)),
     );
   }
