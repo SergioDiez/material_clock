@@ -181,23 +181,18 @@ class _DigitalClockState extends State<DigitalClock> {
     );
   }
 
-  Widget _buildBlock(
-      BuildContext context, Color color, double width, double height) {
-    return Transform(
-        transform: Matrix4.skewX(-0.15),
-        child: AnimatedContainer(
-          duration: Duration(seconds: 1),
-          curve: Curves.fastOutSlowIn,
-          width: width,
-          height: height,
-          decoration: new BoxDecoration(color: color, boxShadow: [
-            BoxShadow(
-                color: Colors.black45,
-                blurRadius: 6.0,
-                spreadRadius: 0.0,
-                offset: Offset(-2, 0))
-          ]),
-        ));
+  Widget _buildBlock(BuildContext context, Color color) {
+    return AnimatedContainer(
+      duration: Duration(seconds: 1),
+      curve: Curves.fastOutSlowIn,
+      decoration: new BoxDecoration(color: color, boxShadow: [
+        BoxShadow(
+            color: Colors.black45,
+            blurRadius: 6.0,
+            spreadRadius: 0.0,
+            offset: Offset(-2, 0))
+      ]),
+    );
   }
 
   @override
@@ -206,8 +201,7 @@ class _DigitalClockState extends State<DigitalClock> {
         ? _lightTheme
         : _darkTheme;
 
-    final screenWidth = MediaQuery
-        .of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final layerWidth = screenWidth / 4;
     final fontSize = screenWidth / 6.5;
@@ -226,76 +220,74 @@ class _DigitalClockState extends State<DigitalClock> {
 
     return Container(
       color: colors[_Element.background],
-      child: Center(
-        child: DefaultTextStyle(
-          style: defaultStyle,
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                  left: 0,
-                  top: 0,
-                  child: _buildBlock(context, _firstLayerColor, layerWidth + 15,
-                      screenHeight)),
-              Positioned(
-                  left: layerWidth + 15,
-                  top: 0,
-                  child: _buildBlock(
-                      context, _secondLayerColor, layerWidth, screenHeight)),
-              Positioned(
-                  left: layerWidth * 2 + 15,
-                  top: 0,
-                  child: _buildBlock(
-                      context, _thirdLayerColor, layerWidth, screenHeight)),
-              Positioned(
-                  left: layerWidth * 3 + 15,
-                  top: 0,
-                  child: _buildBlock(context, _fourthLayerColor,
-                      layerWidth + 20, screenHeight)),
-              AnimatedNumber(
-                  x: layerWidth / 2 - 16,
-                  y: 80,
-                  numberDisplayed: _firstHourNumber),
-              AnimatedNumber(
-                  x: (layerWidth * 2 - layerWidth / 2) - 16,
-                  y: 80,
-                  numberDisplayed: _secondHourNumber),
-              Positioned(
-                  left: layerWidth * 2 - 7.5,
-                  top: 75,
-                  child: AnimatedOpacity(
-                      duration: Duration(milliseconds: 350),
-                      opacity: _separatorOpacity,
-                      child: Text(':'))),
-              AnimatedNumber(
-                  x: (layerWidth * 3 - layerWidth / 2) - 16,
-                  y: 80,
-                  numberDisplayed: _firstMinuteNumber),
-              AnimatedNumber(
-                  x: (layerWidth * 4 - layerWidth / 2) - 16,
-                  y: 80,
-                  numberDisplayed: _secondMinuteNumber),
-              Positioned(
-                  right: 10,
-                  bottom: 25,
-                  child: Row(
-                    children: <Widget>[
-                      _getWeatherEmoji(widget.model.weatherCondition),
-                      Text(
-                        widget.model.temperatureString,
-                        style: TextStyle(fontSize: 10),
-                      ),
-                    ],
-                  )),
-              Positioned(
-                  right: 10,
-                  bottom: 10,
-                  child: Text(
-                    widget.model.location,
-                    style: TextStyle(fontSize: 7),
-                  )),
-            ],
-            overflow: Overflow.clip,
-          ),
+      child: DefaultTextStyle(
+        style: defaultStyle,
+        child: Stack(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Flexible(
+                  flex: 1,
+                  child: _buildBlock(context, _firstLayerColor),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: _buildBlock(context, _secondLayerColor),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: _buildBlock(context, _thirdLayerColor),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: _buildBlock(context, _fourthLayerColor),
+                ),
+              ],
+            ),
+            AnimatedNumber(
+                x: layerWidth / 2 - 16,
+                y: 80,
+                numberDisplayed: _firstHourNumber),
+            AnimatedNumber(
+                x: (layerWidth * 2 - layerWidth / 2) - 16,
+                y: 80,
+                numberDisplayed: _secondHourNumber),
+            Positioned(
+                left: layerWidth * 2 - 7.5,
+                top: 75,
+                child: AnimatedOpacity(
+                    duration: Duration(milliseconds: 350),
+                    opacity: _separatorOpacity,
+                    child: Text(':'))),
+            AnimatedNumber(
+                x: (layerWidth * 3 - layerWidth / 2) - 16,
+                y: 80,
+                numberDisplayed: _firstMinuteNumber),
+            AnimatedNumber(
+                x: (layerWidth * 4 - layerWidth / 2) - 16,
+                y: 80,
+                numberDisplayed: _secondMinuteNumber),
+            Positioned(
+                right: 10,
+                bottom: 25,
+                child: Row(
+                  children: <Widget>[
+                    _getWeatherEmoji(widget.model.weatherCondition),
+                    Text(
+                      widget.model.temperatureString,
+                      style: TextStyle(fontSize: 10),
+                    ),
+                  ],
+                )),
+            Positioned(
+                right: 10,
+                bottom: 10,
+                child: Text(
+                  widget.model.location,
+                  style: TextStyle(fontSize: 7),
+                )),
+          ],
+          overflow: Overflow.clip,
         ),
       ),
     );
