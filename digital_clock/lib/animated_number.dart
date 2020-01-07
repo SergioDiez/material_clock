@@ -24,7 +24,7 @@ class _AnimatedNumberState extends State<AnimatedNumber>
   AnimationController _outAnimationController;
   String _displayedNumber;
 
-  static const int IN_ANIMATION_DURATION_MS = 1250;
+  static const int IN_ANIMATION_DURATION_MS = 3100;
   static const int OUT_ANIMATION_DURATION_MS = 650;
 
   @override
@@ -44,7 +44,7 @@ class _AnimatedNumberState extends State<AnimatedNumber>
     );
     _xOutAnimation = Tween<double>(
       begin: widget.x,
-      end: widget.x - 5,
+      end: widget.x - 15,
     ).animate(CurvedAnimation(
       parent: _outAnimationController,
       curve: Interval(0.0, 1.0, curve: Curves.easeIn),
@@ -64,11 +64,11 @@ class _AnimatedNumberState extends State<AnimatedNumber>
       vsync: this,
     );
     _xInAnimation = Tween<double>(
-      begin: -5,
+      begin: widget.x + 15,
       end: widget.x,
     ).animate(CurvedAnimation(
         parent: _inAnimationController,
-        curve: Interval(0.0, 1.0, curve: Curves.easeOutExpo)))
+        curve: Interval(0.0, 0.3, curve: Curves.ease)))
       ..addListener(() {
         setState(() {});
       });
@@ -77,32 +77,36 @@ class _AnimatedNumberState extends State<AnimatedNumber>
       end: widget.y,
     ).animate(CurvedAnimation(
         parent: _inAnimationController,
-        curve: Interval(0.0, 1.0, curve: Curves.easeOutExpo)));
+        curve: Interval(0.0, 0.3, curve: Curves.ease)));
 
     _angleAnimation = TweenSequence(<TweenSequenceItem<double>>[
       TweenSequenceItem<double>(
+        tween: ConstantTween<double>(-20.0),
+        weight: 35.0,
+      ),
+      TweenSequenceItem<double>(
         tween: Tween<double>(begin: -20.0, end: -2.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 75.0,
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 20.0,
       ),
       TweenSequenceItem<double>(
         tween: Tween<double>(begin: 0.0, end: 7.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
+            .chain(CurveTween(curve: Curves.ease)),
+        weight: 20.0,
+      ),
+      TweenSequenceItem<double>(
+        tween: Tween<double>(begin: 7.0, end: -4.5)
+            .chain(CurveTween(curve: Curves.ease)),
+        weight: 15.0,
+      ),
+      TweenSequenceItem<double>(
+        tween: Tween<double>(begin: -4.5, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeOutBack)),
         weight: 10.0,
-      ),
-      TweenSequenceItem<double>(
-        tween: Tween<double>(begin: 7.0, end: -3.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 7.5,
-      ),
-      TweenSequenceItem<double>(
-        tween: Tween<double>(begin: -3.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 7.5,
       ),
     ]).animate(CurvedAnimation(
         parent: _inAnimationController,
-        curve: Interval(0.0, 1.0, curve: Curves.ease)))
+        curve: Interval(0.0, 1.0, curve: Curves.decelerate)))
       ..addListener(() {
         setState(() {});
       });
@@ -146,7 +150,7 @@ class _AnimatedNumberState extends State<AnimatedNumber>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      right: _outAnimationController.isAnimating
+      left: _outAnimationController.isAnimating
           ? _xOutAnimation.value
           : _xInAnimation.value,
       top: _outAnimationController.isAnimating

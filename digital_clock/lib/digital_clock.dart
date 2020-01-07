@@ -181,14 +181,15 @@ class _DigitalClockState extends State<DigitalClock> {
     );
   }
 
-  Widget _buildBlock(BuildContext context, Color color) {
-    return Transform.rotate(
-        angle: math.pi / 16,
+  Widget _buildBlock(
+      BuildContext context, Color color, double width, double height) {
+    return Transform(
+        transform: Matrix4.skewX(-0.15),
         child: AnimatedContainer(
           duration: Duration(seconds: 1),
           curve: Curves.fastOutSlowIn,
-          width: 140,
-          height: 420,
+          width: width,
+          height: height,
           decoration: new BoxDecoration(color: color, boxShadow: [
             BoxShadow(
                 color: Colors.black45,
@@ -205,7 +206,11 @@ class _DigitalClockState extends State<DigitalClock> {
         ? _lightTheme
         : _darkTheme;
 
-    final fontSize = MediaQuery.of(context).size.width / 6.5;
+    final screenWidth = MediaQuery
+        .of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final layerWidth = screenWidth / 4;
+    final fontSize = screenWidth / 6.5;
     final defaultStyle = TextStyle(
       color: colors[_Element.text],
       fontFamily: 'Roboto',
@@ -227,33 +232,48 @@ class _DigitalClockState extends State<DigitalClock> {
           child: Stack(
             children: <Widget>[
               Positioned(
-                  left: -25,
-                  top: -80,
-                  child: _buildBlock(context, _firstLayerColor)),
+                  left: 0,
+                  top: 0,
+                  child: _buildBlock(context, _firstLayerColor, layerWidth + 15,
+                      screenHeight)),
               Positioned(
-                  left: 110,
-                  top: -80,
-                  child: _buildBlock(context, _secondLayerColor)),
+                  left: layerWidth + 15,
+                  top: 0,
+                  child: _buildBlock(
+                      context, _secondLayerColor, layerWidth, screenHeight)),
               Positioned(
-                  left: 210,
-                  top: -80,
-                  child: _buildBlock(context, _thirdLayerColor)),
+                  left: layerWidth * 2 + 15,
+                  top: 0,
+                  child: _buildBlock(
+                      context, _thirdLayerColor, layerWidth, screenHeight)),
               Positioned(
-                  left: 310,
-                  top: -80,
-                  child: _buildBlock(context, _fourthLayerColor)),
-              Positioned(left: 40, top: 80, child: Text(_firstHourNumber)),
-              Positioned(left: 130, top: 80, child: Text(_secondHourNumber)),
+                  left: layerWidth * 3 + 15,
+                  top: 0,
+                  child: _buildBlock(context, _fourthLayerColor,
+                      layerWidth + 20, screenHeight)),
+              AnimatedNumber(
+                  x: layerWidth / 2 - 16,
+                  y: 80,
+                  numberDisplayed: _firstHourNumber),
+              AnimatedNumber(
+                  x: (layerWidth * 2 - layerWidth / 2) - 16,
+                  y: 80,
+                  numberDisplayed: _secondHourNumber),
               Positioned(
-                  left: 200,
+                  left: layerWidth * 2 - 7.5,
                   top: 75,
                   child: AnimatedOpacity(
                       duration: Duration(milliseconds: 350),
                       opacity: _separatorOpacity,
                       child: Text(':'))),
-              Positioned(right: 125, top: 80, child: Text(_firstMinuteNumber)),
               AnimatedNumber(
-                  x: 25, y: 80, numberDisplayed: _secondMinuteNumber),
+                  x: (layerWidth * 3 - layerWidth / 2) - 16,
+                  y: 80,
+                  numberDisplayed: _firstMinuteNumber),
+              AnimatedNumber(
+                  x: (layerWidth * 4 - layerWidth / 2) - 16,
+                  y: 80,
+                  numberDisplayed: _secondMinuteNumber),
               Positioned(
                   right: 10,
                   bottom: 25,
