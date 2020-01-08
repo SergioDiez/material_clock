@@ -132,7 +132,6 @@ class _DigitalClockState extends State<DigitalClock> {
 
   Color _getColor(Color currentColor) {
     Window window = WidgetsBinding.instance.window;
-    print(window.platformBrightness);
     final themeColors = window.platformBrightness == Brightness.dark
         ? _darkColors
         : _lightColors;
