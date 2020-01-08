@@ -63,8 +63,13 @@ class _AnimatedNumberState extends State<AnimatedNumber>
 
     _swingAnimation = TweenSequence(<TweenSequenceItem<double>>[
       TweenSequenceItem<double>(
+        tween: Tween<double>(begin: 0.0, end: -20.0)
+            .chain(CurveTween(curve: Curves.ease)),
+        weight: 10.0,
+      ),
+      TweenSequenceItem<double>(
         tween: ConstantTween<double>(-20.0),
-        weight: 35.0,
+        weight: 25.0,
       ),
       TweenSequenceItem<double>(
         tween: Tween<double>(begin: -20.0, end: -2.0)
