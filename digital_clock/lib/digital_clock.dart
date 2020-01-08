@@ -205,7 +205,7 @@ class _DigitalClockState extends State<DigitalClock> {
     final screenWidth = MediaQuery.of(context).size.width;
     final fontSize = screenWidth / 6.5;
     final defaultStyle = TextStyle(
-      color: Color(0xFF81B3FE),
+      color: Colors.white,
       fontFamily: 'Roboto',
       fontSize: fontSize,
       shadows: [
@@ -249,11 +249,14 @@ class _DigitalClockState extends State<DigitalClock> {
             ),
             Center(
               child: AnimatedOpacity(
-                  duration: Duration(milliseconds: 350),
-                  opacity: _separatorOpacity,
-                  child: Text(
-                    ':',
-                  )),
+                duration: Duration(milliseconds: 350),
+                opacity: _separatorOpacity,
+                child: Padding(
+                    padding: EdgeInsets.only(bottom: fontSize / 8),
+                    child: Text(
+                      ':',
+                    )),
+              ),
             ),
             Positioned(
                 right: 10,
