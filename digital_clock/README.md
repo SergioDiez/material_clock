@@ -1,8 +1,9 @@
-# Digital Clock
+# Layers of color Clock
 
-This app is an example of a digital clock.
+Clock created to participate in the Flutter clock challenge. (https://flutter.dev/clock)
 It has a light theme and a dark theme.
-See the [Analog Clock](../analog_clock) if you'd like an example that displays the weather and location.
+
+Every time that a number changes, the associated layer changes its color, and the number let's the new number occupy its place.
 
 <img src='digital.gif' width='350'>
 
