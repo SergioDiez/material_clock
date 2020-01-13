@@ -1,4 +1,4 @@
-# Layers of color Clock
+# Material Clock
 
 Clock created to participate in the Flutter clock challenge. (https://flutter.dev/clock)
 It has a light theme and a dark theme.
