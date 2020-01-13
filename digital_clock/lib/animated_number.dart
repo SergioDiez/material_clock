@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class AnimatedNumber extends StatefulWidget {
-  const AnimatedNumber({Key key, this.x, this.y, this.numberDisplayed})
+  const AnimatedNumber({Key key, this.numberDisplayed, this.animationDelay = 0})
       : super(key: key);
 
-  final double x;
-  final double y;
   final String numberDisplayed;
+  final int animationDelay;
 
   @override
   _AnimatedNumberState createState() => _AnimatedNumberState();
@@ -37,7 +36,8 @@ class _AnimatedNumberState extends State<AnimatedNumber>
 
   void createOutAnimation() {
     _outAnimationController = AnimationController(
-      duration: Duration(milliseconds: OUT_ANIMATION_DURATION_MS),
+      duration: Duration(
+          milliseconds: OUT_ANIMATION_DURATION_MS + widget.animationDelay),
       vsync: this,
     );
     _offsetOutAnimation = Tween<Offset>(
@@ -102,8 +102,10 @@ class _AnimatedNumberState extends State<AnimatedNumber>
   @override
   void didUpdateWidget(AnimatedNumber oldWidget) {
     if (widget.numberDisplayed != oldWidget.numberDisplayed) {
-      runOutAnimation();
-      runInAnimation();
+      Future.delayed(Duration(milliseconds: widget.animationDelay), () {
+        runOutAnimation();
+        runInAnimation();
+      });
     }
     super.didUpdateWidget(oldWidget);
   }

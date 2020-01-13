@@ -59,6 +59,12 @@ class _DigitalClockState extends State<DigitalClock> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      _firstHourNumber = '';
+      _secondHourNumber = '';
+      _firstMinuteNumber = '';
+      _secondMinuteNumber = '';
+    });
     _updateTime();
   }
 
@@ -180,13 +186,16 @@ class _DigitalClockState extends State<DigitalClock> {
     );
   }
 
-  Widget _buildBlock(
-      BuildContext context, Color color, String displayedNumber) {
+  Widget _buildBlock(BuildContext context, Color color, String displayedNumber,
+      {int animationDelay = 0}) {
     return AnimatedContainer(
       duration: Duration(seconds: 1),
       curve: Curves.fastOutSlowIn,
       child: Center(
-        child: AnimatedNumber(numberDisplayed: displayedNumber),
+        child: AnimatedNumber(
+          numberDisplayed: displayedNumber,
+          animationDelay: animationDelay,
+        ),
       ),
       constraints: BoxConstraints.expand(),
       decoration: new BoxDecoration(color: color, boxShadow: [
@@ -202,7 +211,7 @@ class _DigitalClockState extends State<DigitalClock> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final fontSize = screenWidth / 6.5;
+    final fontSize = screenWidth / 6;
     final defaultStyle = TextStyle(
       color: Colors.white,
       fontFamily: 'Roboto',
@@ -226,18 +235,21 @@ class _DigitalClockState extends State<DigitalClock> {
               children: <Widget>[
                 Flexible(
                   flex: 1,
-                  child:
-                      _buildBlock(context, _firstLayerColor, _firstHourNumber),
+                  child: _buildBlock(
+                      context, _firstLayerColor, _firstHourNumber,
+                      animationDelay: 375),
                 ),
                 Flexible(
                   flex: 1,
                   child: _buildBlock(
-                      context, _secondLayerColor, _secondHourNumber),
+                      context, _secondLayerColor, _secondHourNumber,
+                      animationDelay: 250),
                 ),
                 Flexible(
                   flex: 1,
                   child: _buildBlock(
-                      context, _thirdLayerColor, _firstMinuteNumber),
+                      context, _thirdLayerColor, _firstMinuteNumber,
+                      animationDelay: 125),
                 ),
                 Flexible(
                   flex: 1,
@@ -265,7 +277,7 @@ class _DigitalClockState extends State<DigitalClock> {
                     _getWeatherEmoji(widget.model.weatherCondition),
                     Text(
                       widget.model.temperatureString,
-                      style: TextStyle(fontSize: 10),
+                      style: TextStyle(fontSize: 12),
                     ),
                   ],
                 )),
@@ -274,7 +286,7 @@ class _DigitalClockState extends State<DigitalClock> {
                 bottom: 10,
                 child: Text(
                   widget.model.location,
-                  style: TextStyle(fontSize: 7),
+                  style: TextStyle(fontSize: 9),
                 )),
           ],
           overflow: Overflow.clip,
