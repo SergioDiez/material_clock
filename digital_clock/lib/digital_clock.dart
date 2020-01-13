@@ -55,6 +55,7 @@ class _DigitalClockState extends State<DigitalClock> {
   Color _thirdLayerColor;
   String _secondMinuteNumber;
   Color _fourthLayerColor;
+  bool _isDarkMode;
 
   @override
   void initState() {
@@ -92,6 +93,16 @@ class _DigitalClockState extends State<DigitalClock> {
 
     final firstMinuteNumber = minute.substring(0, 1);
     final secondMinuteNumber = minute.substring(1);
+
+    if (_isDarkMode != null &&
+        (window.platformBrightness == Brightness.dark) != _isDarkMode) {
+      setState(() {
+        resetColors();
+      });
+    }
+    setState(() {
+      _isDarkMode = window.platformBrightness == Brightness.dark;
+    });
 
     Color newFirstLayerColor;
     if (firstHourNumber != _firstHourNumber) {
@@ -136,17 +147,29 @@ class _DigitalClockState extends State<DigitalClock> {
     });
   }
 
-  Color _getColor(Color currentColor) {
+  void resetColors() {
+    setState(() {
+      _firstLayerColor = _getColor(_firstLayerColor, true);
+      _secondLayerColor = _getColor(_secondLayerColor, true);
+      _thirdLayerColor = _getColor(_thirdLayerColor, true);
+      _fourthLayerColor = _getColor(_fourthLayerColor, true);
+    });
+  }
+
+  Color _getColor(Color currentColor, [isThemeChanged = false]) {
     Window window = WidgetsBinding.instance.window;
-    final themeColors = window.platformBrightness == Brightness.dark
-        ? _darkColors
-        : _lightColors;
+    bool isDarkMode = window.platformBrightness == Brightness.dark;
+    final themeColors = isDarkMode ? _darkColors : _lightColors;
     math.Random random = new math.Random();
     int position = random.nextInt(themeColors.length);
     Color nextColor = themeColors[position];
     themeColors.removeAt(position);
     if (currentColor != null) {
-      themeColors.add(currentColor);
+      if ((isDarkMode && isThemeChanged) || (!isDarkMode && !isThemeChanged)) {
+        _lightColors.add(currentColor);
+      } else {
+        _darkColors.add(currentColor);
+      }
     }
     return nextColor;
   }
