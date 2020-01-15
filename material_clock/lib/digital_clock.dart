@@ -238,6 +238,7 @@ class _DigitalClockState extends State<DigitalClock> {
     final defaultStyle = TextStyle(
       color: Colors.white,
       fontFamily: 'Roboto',
+      fontFamilyFallback: ['SF Pro'],
       fontSize: fontSize,
       shadows: [
         Shadow(
