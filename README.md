@@ -8,4 +8,4 @@ See a [live demo](https://maryx.github.io/flutter_clock) with Flutter for Web!
 
 [Material Clock](material_clock)
 
-<img src='material_clock/digital.gif' width='350'>
+<img src='material_clock/material_clock.gif' width='350'>
